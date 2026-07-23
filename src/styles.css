@@ -131,6 +131,63 @@ section.card h2 {
   border-radius: 10px;
 }
 
+.quote {
+  margin: clamp(8px, 1.5vw, 14px) 0 0;
+  padding: clamp(18px, 2.5vw, 28px) 0 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: grid;
+  gap: clamp(14px, 2vw, 18px);
+}
+
+.quote blockquote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.quote blockquote p {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--ink);
+  font-size: clamp(17px, 2.4vw, 22px);
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: -0.015em;
+}
+
+.quote figcaption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quote figcaption img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.quote figcaption span {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.25;
+}
+
+.quote figcaption strong {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.quote figcaption em {
+  font-style: normal;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 .contact-line {
   margin: clamp(28px, 4vw, 40px) 0 0;
   text-align: center;

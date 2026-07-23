@@ -20,7 +20,7 @@ export default function App() {
         ease={160}
         smoothing={0.05}
         tumble={0.18}
-        tilt={0.5}
+        tilt={0}
         direction="in"
         top
         bottom
@@ -92,6 +92,29 @@ export default function App() {
                   loading="lazy"
                 />
               </div>
+              <figure className="quote">
+                <blockquote>
+                  <p>
+                    &ldquo;OpenClaw is putting an AI in a box with access to
+                    everything and hoping for the best. Pervasive is
+                    [bringing] product vision and discipline and opinions and
+                    organization to that so that AI is being used for
+                    you.&rdquo;
+                  </p>
+                </blockquote>
+                <figcaption>
+                  <img
+                    src="/assets/images/amar.jpg"
+                    alt=""
+                    width={500}
+                    height={500}
+                  />
+                  <span>
+                    <strong>Amar Sood</strong>
+                    <em>Founder, Pervasive</em>
+                  </span>
+                </figcaption>
+              </figure>
             </section>
 
             <section className="card rise rise-5" id="ax">
