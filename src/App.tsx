@@ -125,6 +125,15 @@ export default function App() {
                 tools nailed to the wall. The room it gets here: a cockpit —
                 because the agent is a first-class user of the OS.
               </p>
+              <div className="fig">
+                <img
+                  src="/assets/images/0.4_OS_for_Agentic_Experience.png"
+                  alt="OS for Agentic Experience: agent cockpit versus a bare tool cell"
+                  width={1920}
+                  height={1440}
+                  loading="lazy"
+                />
+              </div>
             </section>
 
             <section className="card rise rise-6" id="branches">
