@@ -21,6 +21,10 @@
   --paper: #ffffff;
   --card: #f3f4f6;
   --rise: cubic-bezier(0.16, 1, 0.3, 1);
+  --page-inline: clamp(16px, 4vw, 32px);
+  --header-top: 120px;
+  --rail-gap: clamp(18px, 2.4vw, 28px);
+  --card-width: min(560px, calc(100vw - (var(--page-inline) * 2)));
 }
 
 * {
@@ -44,26 +48,25 @@ body,
   text-rendering: optimizeLegibility;
 }
 
-.bend-root {
+.shell {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
   min-height: 100dvh;
   background: var(--paper);
-  overflow: hidden;
 }
 
-.page {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 240px clamp(16px, 4vw, 32px) clamp(48px, 8vw, 96px);
+.site-header {
+  flex: 0 0 auto;
+  z-index: 5;
+  padding: var(--header-top) var(--page-inline) clamp(18px, 2.5vw, 28px);
+  background: var(--paper);
 }
 
-header {
-  margin-bottom: clamp(28px, 5vw, 48px);
-}
-
-header h1 {
+.site-header h1 {
   margin: 0;
+  max-width: 1080px;
   font-weight: 700;
   font-size: clamp(28px, 5.5vw, 44px);
   letter-spacing: -0.02em;
@@ -71,20 +74,40 @@ header h1 {
   color: var(--ink);
 }
 
-.cards {
+.bend-root {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.rail {
   display: flex;
-  flex-direction: column;
-  gap: clamp(20px, 3.5vw, 36px);
+  flex-direction: row;
+  align-items: stretch;
+  gap: var(--rail-gap);
+  height: 100%;
+  min-height: 100%;
+  width: max-content;
+  padding: 0 var(--page-inline) clamp(28px, 4vw, 48px);
+  box-sizing: border-box;
 }
 
 section.card {
+  flex: 0 0 var(--card-width);
+  width: var(--card-width);
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: var(--card);
   border: none;
   border-radius: 28px;
-  padding: clamp(22px, 4vw, 40px);
+  padding: clamp(22px, 4vw, 36px);
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 2.2vw, 22px);
+  gap: clamp(12px, 1.8vw, 18px);
+  scrollbar-width: thin;
 }
 
 .num {
@@ -100,7 +123,7 @@ section.card {
 section.card h2 {
   margin: 0;
   font-weight: 700;
-  font-size: clamp(26px, 5vw, 42px);
+  font-size: clamp(24px, 3.6vw, 36px);
   letter-spacing: -0.03em;
   line-height: 1.08;
   color: var(--ink);
@@ -108,9 +131,9 @@ section.card h2 {
 
 .arg {
   margin: 0;
-  max-width: 68ch;
+  max-width: 52ch;
   color: var(--muted);
-  font-size: clamp(15px, 2.1vw, 18px);
+  font-size: clamp(15px, 2vw, 17px);
   line-height: 1.55;
 }
 
@@ -120,7 +143,7 @@ section.card h2 {
 }
 
 .fig {
-  margin: clamp(4px, 1vw, 8px) 0 0;
+  margin: clamp(2px, 0.8vw, 6px) 0 0;
   width: 100%;
 }
 
@@ -132,11 +155,11 @@ section.card h2 {
 }
 
 .quote {
-  margin: clamp(8px, 1.5vw, 14px) 0 0;
-  padding: clamp(18px, 2.5vw, 28px) 0 0;
+  margin: clamp(4px, 1vw, 10px) 0 0;
+  padding: clamp(14px, 2vw, 22px) 0 0;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   display: grid;
-  gap: clamp(14px, 2vw, 18px);
+  gap: clamp(12px, 1.6vw, 16px);
 }
 
 .quote blockquote {
@@ -147,9 +170,9 @@ section.card h2 {
 
 .quote blockquote p {
   margin: 0;
-  max-width: 42ch;
+  max-width: 38ch;
   color: var(--ink);
-  font-size: clamp(17px, 2.4vw, 22px);
+  font-size: clamp(16px, 2.1vw, 20px);
   font-weight: 400;
   line-height: 1.45;
   letter-spacing: -0.015em;
@@ -188,26 +211,29 @@ section.card h2 {
   color: var(--muted);
 }
 
-.contact-line {
-  margin: clamp(28px, 4vw, 40px) 0 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: clamp(15px, 2.1vw, 18px);
-  line-height: 1.55;
+.contact-card {
+  justify-content: center;
+  min-height: min(420px, 100%);
 }
 
-.contact-line a {
+.contact-email {
+  margin: 4px 0 0;
+  font-size: clamp(18px, 2.6vw, 24px);
+  letter-spacing: -0.02em;
+}
+
+.contact-email a {
   color: #2563eb;
   text-decoration: none;
 }
 
-.contact-line a:hover {
+.contact-email a:hover {
   text-decoration: underline;
 }
 
 .rise {
   opacity: 0;
-  transform: translate3d(0, 16px, 0);
+  transform: translate3d(18px, 0, 0);
   animation: rise-in 420ms var(--rise) forwards;
   will-change: transform, opacity;
 }
@@ -229,6 +255,9 @@ section.card h2 {
 }
 .rise-6 {
   animation-delay: 340ms;
+}
+.rise-7 {
+  animation-delay: 400ms;
 }
 
 @keyframes rise-in {
@@ -306,19 +335,23 @@ section.card h2 {
 }
 
 @media (max-width: 640px) {
-  .page {
-    padding-top: 240px;
-    padding-bottom: 96px;
+  :root {
+    --header-top: 72px;
+    --card-width: calc(100vw - (var(--page-inline) * 2));
+  }
+
+  .site-header {
+    padding-bottom: 16px;
   }
 
   section.card {
     border-radius: 22px;
-    padding: 20px 16px 18px;
+    padding: 18px 16px 16px;
     gap: 12px;
   }
 
   section.card h2 {
-    font-size: clamp(24px, 7.5vw, 32px);
+    font-size: clamp(22px, 7vw, 28px);
   }
 
   .arg {

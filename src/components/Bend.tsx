@@ -5,11 +5,12 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 
 export interface BendOptions {
-  /** Height of the folded region at each edge in CSS pixels. */
+  /** Size of the folded region at each edge in CSS pixels. */
   zone?: number;
   /** Maximum fold angle in degrees, reached away from the scroll ends. 90 is a cube edge. */
   angle?: number;
@@ -23,9 +24,11 @@ export interface BendOptions {
   ease?: number;
   /** Seconds the bend takes to settle after a scroll. 0 snaps instantly. */
   smoothing?: number;
-  /** Bend the top edge. */
+  /** Scroll + fold axis. "horizontal" bends left/right and scrolls on X. */
+  axis?: "vertical" | "horizontal";
+  /** Bend the top edge (vertical axis) or right edge (horizontal axis). */
   top?: boolean;
-  /** Bend the bottom edge. */
+  /** Bend the bottom edge (vertical axis) or left edge (horizontal axis). */
   bottom?: boolean;
   /** Overscroll tip strength (0 to 1). Rubber-banding past a scroll end tips the whole face over that edge. 0 disables. */
   tumble?: number;
@@ -59,6 +62,7 @@ const DEFAULTS: Required<BendOptions> = {
   direction: "in",
   ease: 240,
   smoothing: 0.1,
+  axis: "vertical",
   top: true,
   bottom: true,
   tumble: 0.5,
@@ -97,12 +101,14 @@ uniform float uBotAmt;
 uniform float uMaxX;
 uniform float uPxY;
 uniform float uPxX;
+uniform float uPxEdge;
 uniform float uCover;
 uniform vec3 uBg;
 uniform float uTiltX;
 uniform float uTiltY;
 uniform float uPhi;
 uniform float uRound;
+uniform float uHorizontal;
 
 vec3 foldEdge (float sy, float amt) {
   float yf = 1.0 - uZone;
@@ -115,7 +121,7 @@ vec3 foldEdge (float sy, float amt) {
     float tRaw = uPersp * (sy - yf) / denom;
     float t = clamp(tRaw, 0.0, uZone);
     float z = max(t * s, -0.85 * uPersp);
-    float alpha = 1.0 - smoothstep(uZone, uZone + 2.0 * uPxY, tRaw);
+    float alpha = 1.0 - smoothstep(uZone, uZone + 2.0 * uPxEdge, tRaw);
     return vec3(yf + t, z, alpha);
   }
   if (sy <= yf) return vec3(sy, 0.0, 1.0);
@@ -159,7 +165,7 @@ vec3 foldEdge (float sy, float amt) {
     prevU = u;
   }
   if (bestU < 0.0) {
-    float alpha = 1.0 - smoothstep(maxSy - uPxY, maxSy + uPxY, sy);
+    float alpha = 1.0 - smoothstep(maxSy - uPxEdge, maxSy + uPxEdge, sy);
     return vec3(1.0, prevZ, alpha);
   }
   return vec3(yf + bestU, bestZ, 1.0);
@@ -177,9 +183,20 @@ void main () {
   vec2 uv = vUv;
   float cx = uMaxX * 0.5;
   float zSum = 0.0;
+  bool horiz = uHorizontal > 0.5;
 
   if (abs(uPhi) > 1e-4) {
-    if (uPhi > 0.0) {
+    if (horiz) {
+      if (uPhi > 0.0) {
+        vec2 r = tipPlane(uv.x, uPhi);
+        uv.x = r.x;
+        zSum += r.y;
+      } else {
+        vec2 r = tipPlane(1.0 - uv.x, -uPhi);
+        uv.x = 1.0 - r.x;
+        zSum += r.y;
+      }
+    } else if (uPhi > 0.0) {
       vec2 r = tipPlane(uv.y, uPhi);
       uv.y = r.x;
       zSum += r.y;
@@ -192,22 +209,36 @@ void main () {
 
   float zG = uTiltX * (uv.x - cx) + uTiltY * (uv.y - 0.5);
   zSum += zG;
-  uv.y = 0.5 + (uv.y - 0.5) * (uPersp + zG) / uPersp;
 
-  float inTop = step(1.0 - uZone, uv.y);
-  float inBot = step(uv.y, uZone);
+  float srcX;
+  float srcY;
+  float alpha;
 
-  vec3 top = foldEdge(uv.y, uTopAmt);
-  vec3 bot = foldEdge(1.0 - uv.y, uBotAmt);
-
-  float srcY = uv.y;
-  srcY = mix(srcY, top.x, inTop);
-  srcY = mix(srcY, 1.0 - bot.x, inBot);
-
-  zSum += inTop * top.y + inBot * bot.y;
-  float alpha = mix(1.0, top.z, inTop) * mix(1.0, bot.z, inBot);
-
-  float srcX = cx + (uv.x - cx) * (uPersp + zSum) / uPersp;
+  if (horiz) {
+    uv.x = 0.5 + (uv.x - 0.5) * (uPersp + zG) / uPersp;
+    float inRight = step(1.0 - uZone, uv.x);
+    float inLeft = step(uv.x, uZone);
+    vec3 right = foldEdge(uv.x, uTopAmt);
+    vec3 left = foldEdge(1.0 - uv.x, uBotAmt);
+    srcX = uv.x;
+    srcX = mix(srcX, right.x, inRight);
+    srcX = mix(srcX, 1.0 - left.x, inLeft);
+    zSum += inRight * right.y + inLeft * left.y;
+    alpha = mix(1.0, right.z, inRight) * mix(1.0, left.z, inLeft);
+    srcY = 0.5 + (uv.y - 0.5) * (uPersp + zSum) / uPersp;
+  } else {
+    uv.y = 0.5 + (uv.y - 0.5) * (uPersp + zG) / uPersp;
+    float inTop = step(1.0 - uZone, uv.y);
+    float inBot = step(uv.y, uZone);
+    vec3 top = foldEdge(uv.y, uTopAmt);
+    vec3 bot = foldEdge(1.0 - uv.y, uBotAmt);
+    srcY = uv.y;
+    srcY = mix(srcY, top.x, inTop);
+    srcY = mix(srcY, 1.0 - bot.x, inBot);
+    zSum += inTop * top.y + inBot * bot.y;
+    alpha = mix(1.0, top.z, inTop) * mix(1.0, bot.z, inBot);
+    srcX = cx + (uv.x - cx) * (uPersp + zSum) / uPersp;
+  }
 
   alpha *= smoothstep(-2.0 * uPxX, 0.0, srcX);
   alpha *= 1.0 - smoothstep(uMaxX, uMaxX + 2.0 * uPxX, srcX);
@@ -444,15 +475,27 @@ export function createBend(
   let tiltYCurrent = 0;
 
   function syncScroll() {
-    const max = content.scrollHeight - content.clientHeight;
-    const t = content.scrollTop;
+    const horizontal = config.axis === "horizontal";
+    const max = horizontal
+      ? content.scrollWidth - content.clientWidth
+      : content.scrollHeight - content.clientHeight;
+    const t = horizontal ? content.scrollLeft : content.scrollTop;
     const e = Math.max(config.ease, 1);
     const ramp = (v: number) => {
       const x = Math.min(Math.max(v / e, 0), 1);
       return x * x * (3 - 2 * x);
     };
-    topTarget = max > 1 && config.top ? ramp(t) : 0;
-    bottomTarget = max > 1 && config.bottom ? ramp(max - t) : 0;
+    // Start-edge flattens at scroll start; end-edge at scroll end.
+    // vertical: top=start, bottom=end · horizontal: left=start→uBot, right=end→uTop
+    const startAmt = max > 1 ? ramp(t) : 0;
+    const endAmt = max > 1 ? ramp(max - t) : 0;
+    if (horizontal) {
+      topTarget = config.top ? endAmt : 0; // right
+      bottomTarget = config.bottom ? startAmt : 0; // left
+    } else {
+      topTarget = config.top ? startAmt : 0;
+      bottomTarget = config.bottom ? endAmt : 0;
+    }
   }
 
   syncCanvasSize();
@@ -478,7 +521,9 @@ export function createBend(
     uploadContent();
     const h = Math.max(output.clientHeight, 1);
     const w = Math.max(output.clientWidth, 1);
-    const zoneFrac = Math.min(Math.max(config.zone, 8) / h, 0.49);
+    const horizontal = config.axis === "horizontal";
+    const axisSpan = horizontal ? w : h;
+    const zoneFrac = Math.min(Math.max(config.zone, 8) / axisSpan, 0.49);
     gl!.useProgram(program);
     gl!.activeTexture(gl!.TEXTURE0);
     gl!.bindTexture(gl!.TEXTURE_2D, contentTexture);
@@ -488,13 +533,14 @@ export function createBend(
       uniforms.uAngle,
       Math.min(Math.max(config.angle, 1), 160) * (Math.PI / 180),
     );
-    gl!.uniform1f(uniforms.uPersp, Math.max(config.perspective, 50) / h);
+    gl!.uniform1f(uniforms.uPersp, Math.max(config.perspective, 50) / axisSpan);
     gl!.uniform1f(uniforms.uDir, config.direction === "in" ? -1 : 1);
     gl!.uniform1f(uniforms.uTopAmt, topCurrent);
     gl!.uniform1f(uniforms.uBotAmt, bottomCurrent);
     gl!.uniform1f(uniforms.uMaxX, contentMaxX);
     gl!.uniform1f(uniforms.uPxY, 1.5 / h);
     gl!.uniform1f(uniforms.uPxX, 1.5 / w);
+    gl!.uniform1f(uniforms.uPxEdge, 1.5 / axisSpan);
     gl!.uniform1f(uniforms.uCover, htmlInCanvas ? 1 : 0);
     gl!.uniform3f(uniforms.uBg, bg[0], bg[1], bg[2]);
     gl!.uniform1f(uniforms.uTiltX, tiltXCurrent);
@@ -502,8 +548,9 @@ export function createBend(
     gl!.uniform1f(uniforms.uPhi, phiCurrent);
     gl!.uniform1f(
       uniforms.uRound,
-      Math.min(Math.max(config.rounding, 0) / h, zoneFrac),
+      Math.min(Math.max(config.rounding, 0) / axisSpan, zoneFrac),
     );
+    gl!.uniform1f(uniforms.uHorizontal, horizontal ? 1 : 0);
     gl!.bindFramebuffer(gl!.FRAMEBUFFER, null);
     gl!.viewport(0, 0, output.width, output.height);
     gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
@@ -591,20 +638,33 @@ export function createBend(
   content.addEventListener("scroll", onScroll, { passive: true });
 
   function onWheel(event: WheelEvent) {
+    const horizontal = config.axis === "horizontal";
+
+    // Map trackpad/mouse wheel to horizontal scroll when needed.
+    if (horizontal && Math.abs(event.deltaY) >= Math.abs(event.deltaX)) {
+      event.preventDefault();
+      content.scrollLeft += event.deltaY + event.deltaX;
+    }
+
     if (config.tumble <= 0 || reducedMotion) return;
-    const max = content.scrollHeight - content.clientHeight;
+    const max = horizontal
+      ? content.scrollWidth - content.clientWidth
+      : content.scrollHeight - content.clientHeight;
     if (max <= 1) return;
-    const st = content.scrollTop;
-    if (event.deltaY > 0 && st >= max - 1) {
-      over = Math.min(over + event.deltaY, 900);
-    } else if (event.deltaY < 0 && st <= 1) {
-      over = Math.max(over + event.deltaY, -900);
+    const st = horizontal ? content.scrollLeft : content.scrollTop;
+    const delta = horizontal
+      ? event.deltaY + event.deltaX
+      : event.deltaY;
+    if (delta > 0 && st >= max - 1) {
+      over = Math.min(over + delta, 900);
+    } else if (delta < 0 && st <= 1) {
+      over = Math.max(over + delta, -900);
     } else {
       return;
     }
     start();
   }
-  content.addEventListener("wheel", onWheel, { passive: true });
+  content.addEventListener("wheel", onWheel, { passive: false });
 
   function onPointerMove(event: PointerEvent) {
     if (!event.isPrimary) return;
@@ -638,25 +698,38 @@ export function createBend(
   function mapPoint(px: number, py: number) {
     const w = Math.max(output.clientWidth, 1);
     const h = Math.max(output.clientHeight, 1);
-    const persp = Math.max(config.perspective, 50) / h;
-    const zone = Math.min(Math.max(config.zone, 8) / h, 0.49);
-    const round = Math.min(Math.max(config.rounding, 0) / h, zone);
+    const horizontal = config.axis === "horizontal";
+    const axisSpan = horizontal ? w : h;
+    const persp = Math.max(config.perspective, 50) / axisSpan;
+    const zone = Math.min(Math.max(config.zone, 8) / axisSpan, 0.49);
+    const round = Math.min(Math.max(config.rounding, 0) / axisSpan, zone);
     const angle = Math.min(Math.max(config.angle, 1), 160) * (Math.PI / 180);
     const dirSign = config.direction === "in" ? -1 : 1;
     const cx = contentMaxX * 0.5;
-    const x = px / w;
+    let x = px / w;
     let y = 1 - py / h;
     let zSum = 0;
 
+    const tip = (sy: number, phi: number): [number, number] => {
+      const s = Math.sin(phi);
+      const c = Math.cos(phi);
+      const denom = Math.max(c * persp + s * (sy - 0.5), 1e-4);
+      const t = (persp * (1 - sy)) / denom;
+      return [1 - t, t * s];
+    };
+
     if (Math.abs(phiCurrent) > 1e-4) {
-      const tip = (sy: number, phi: number): [number, number] => {
-        const s = Math.sin(phi);
-        const c = Math.cos(phi);
-        const denom = Math.max(c * persp + s * (sy - 0.5), 1e-4);
-        const t = (persp * (1 - sy)) / denom;
-        return [1 - t, t * s];
-      };
-      if (phiCurrent > 0) {
+      if (horizontal) {
+        if (phiCurrent > 0) {
+          const tipped = tip(x, phiCurrent);
+          x = tipped[0];
+          zSum += tipped[1];
+        } else {
+          const tipped = tip(1 - x, -phiCurrent);
+          x = 1 - tipped[0];
+          zSum += tipped[1];
+        }
+      } else if (phiCurrent > 0) {
         const tipped = tip(y, phiCurrent);
         y = tipped[0];
         zSum += tipped[1];
@@ -669,7 +742,6 @@ export function createBend(
 
     const zG = tiltXCurrent * (x - cx) + tiltYCurrent * (y - 0.5);
     zSum += zG;
-    y = 0.5 + (y - 0.5) * ((persp + zG) / persp);
 
     const fold = (sy: number, amt: number): [number, number, number] => {
       const yf = 1 - zone;
@@ -726,20 +798,42 @@ export function createBend(
       return [yf + bestU, bestZ, 1];
     };
 
-    let srcY = y;
+    let srcX: number;
+    let srcY: number;
     let alpha = 1;
-    if (y >= 1 - zone) {
-      const folded = fold(y, topCurrent);
-      srcY = folded[0];
-      zSum += folded[1];
-      alpha *= folded[2];
-    } else if (y <= zone) {
-      const folded = fold(1 - y, bottomCurrent);
-      srcY = 1 - folded[0];
-      zSum += folded[1];
-      alpha *= folded[2];
+
+    if (horizontal) {
+      x = 0.5 + (x - 0.5) * ((persp + zG) / persp);
+      srcX = x;
+      if (x >= 1 - zone) {
+        const folded = fold(x, topCurrent);
+        srcX = folded[0];
+        zSum += folded[1];
+        alpha *= folded[2];
+      } else if (x <= zone) {
+        const folded = fold(1 - x, bottomCurrent);
+        srcX = 1 - folded[0];
+        zSum += folded[1];
+        alpha *= folded[2];
+      }
+      srcY = 0.5 + (y - 0.5) * ((persp + zSum) / persp);
+    } else {
+      y = 0.5 + (y - 0.5) * ((persp + zG) / persp);
+      srcY = y;
+      if (y >= 1 - zone) {
+        const folded = fold(y, topCurrent);
+        srcY = folded[0];
+        zSum += folded[1];
+        alpha *= folded[2];
+      } else if (y <= zone) {
+        const folded = fold(1 - y, bottomCurrent);
+        srcY = 1 - folded[0];
+        zSum += folded[1];
+        alpha *= folded[2];
+      }
+      srcX = cx + (x - cx) * ((persp + zSum) / persp);
     }
-    const srcX = cx + (x - cx) * ((persp + zSum) / persp);
+
     if (srcX < 0 || srcX > contentMaxX || srcY < 0 || srcY > 1) alpha = 0;
     return { x: srcX * w, y: (1 - srcY) * h, alpha };
   }
@@ -1017,6 +1111,17 @@ export function Bend({ children, className, style, ...options }: BendProps) {
     instanceRef.current?.setOptions(options);
   });
 
+  const horizontal = (options.axis ?? initialOptions.axis) === "horizontal";
+  const contentStyle: CSSProperties = {
+    position: "relative",
+    width: "100%",
+    height: "100%",
+    overflowX: horizontal ? "auto" : "hidden",
+    overflowY: horizontal ? "hidden" : "auto",
+    background: "#ffffff",
+    scrollbarWidth: "thin",
+  };
+
   return (
     <div className={className} style={{ position: "relative", ...style }}>
       <canvas
@@ -1031,32 +1136,13 @@ export function Bend({ children, className, style, ...options }: BendProps) {
         }
       >
         {native ? (
-          <div
-            ref={contentRef}
-            style={{
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              overflow: "auto",
-              background: "#ffffff",
-              scrollbarWidth: "thin",
-            }}
-          >
+          <div ref={contentRef} style={contentStyle}>
             {children}
           </div>
         ) : null}
       </canvas>
       {!native ? (
-        <div
-          ref={contentRef}
-          style={{
-            position: "relative",
-            width: "100%",
-            height: "100%",
-            overflow: "auto",
-            background: "#ffffff",
-          }}
-        >
+        <div ref={contentRef} style={contentStyle}>
           {children}
         </div>
       ) : null}

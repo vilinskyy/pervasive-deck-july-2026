@@ -11,26 +11,27 @@ export default function App() {
         <img src="/assets/images/amar.jpg" alt="" width={500} height={500} />
       </a>
 
-      <Bend
-        className="bend-root"
-        zone={120}
-        angle={80}
-        rounding={75}
-        perspective={700}
-        ease={160}
-        smoothing={0.05}
-        tumble={0.18}
-        tilt={0}
-        direction="in"
-        top
-        bottom
-      >
-        <div className="page">
-          <header className="rise rise-1">
-            <h1>Pervasive Notes (July 2026)</h1>
-          </header>
+      <div className="shell">
+        <header className="site-header rise rise-1">
+          <h1>Pervasive Notes (July 2026)</h1>
+        </header>
 
-          <div className="cards">
+        <Bend
+          className="bend-root"
+          axis="horizontal"
+          zone={120}
+          angle={80}
+          rounding={75}
+          perspective={700}
+          ease={160}
+          smoothing={0.05}
+          tumble={0.18}
+          tilt={0}
+          direction="in"
+          top
+          bottom
+        >
+          <div className="rail">
             <section className="card rise rise-2" id="plane">
               <p className="num">001.</p>
               <h2>The whole plane, lived in</h2>
@@ -154,14 +155,20 @@ export default function App() {
                 />
               </div>
             </section>
-          </div>
 
-          <p className="contact-line">
-            Contact Amar Sood (Founder of Pervasive):{" "}
-            <a href="mailto:amar@pervasive.app">amar@pervasive.app</a>
-          </p>
-        </div>
-      </Bend>
+            <section className="card contact-card rise rise-7" id="contact">
+              <p className="num">006.</p>
+              <h2>Say hello</h2>
+              <p className="arg">
+                Contact Amar Sood (Founder of Pervasive):
+              </p>
+              <p className="contact-email">
+                <a href="mailto:amar@pervasive.app">amar@pervasive.app</a>
+              </p>
+            </section>
+          </div>
+        </Bend>
+      </div>
     </>
   );
 }
