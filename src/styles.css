@@ -21,10 +21,10 @@
   --paper: #ffffff;
   --card: #f3f4f6;
   --rise: cubic-bezier(0.16, 1, 0.3, 1);
-  --page-inline: clamp(16px, 4vw, 32px);
+  --page-inline: 240px;
   --header-top: 120px;
   --rail-gap: clamp(18px, 2.4vw, 28px);
-  --card-width: min(560px, calc(100vw - (var(--page-inline) * 2)));
+  --card-width: 40vw;
 }
 
 * {
@@ -66,7 +66,6 @@ body,
 
 .site-header h1 {
   margin: 0;
-  max-width: 1080px;
   font-weight: 700;
   font-size: clamp(28px, 5.5vw, 44px);
   letter-spacing: -0.02em;
@@ -82,6 +81,13 @@ body,
   overflow: hidden;
 }
 
+.bend-root--mobile {
+  flex: none;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+}
+
 .rail {
   display: flex;
   flex-direction: row;
@@ -94,9 +100,27 @@ body,
   box-sizing: border-box;
 }
 
+.page--mobile {
+  max-width: none;
+  margin: 0;
+  padding: 0 0 clamp(48px, 8vw, 96px);
+}
+
+.page--mobile .site-header {
+  padding: 120px var(--page-inline) clamp(18px, 2.5vw, 28px);
+}
+
+.cards--mobile {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3.5vw, 36px);
+  padding: 0 var(--page-inline);
+}
+
 section.card {
   flex: 0 0 var(--card-width);
   width: var(--card-width);
+  min-width: 40vw;
   max-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -108,6 +132,13 @@ section.card {
   flex-direction: column;
   gap: clamp(12px, 1.8vw, 18px);
   scrollbar-width: thin;
+}
+
+.cards--mobile section.card {
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  max-height: none;
 }
 
 .num {
@@ -336,18 +367,20 @@ section.card h2 {
 
 @media (max-width: 640px) {
   :root {
+    --page-inline: clamp(16px, 4vw, 24px);
     --header-top: 72px;
-    --card-width: calc(100vw - (var(--page-inline) * 2));
+    --card-width: 100%;
   }
 
-  .site-header {
-    padding-bottom: 16px;
+  .rise {
+    transform: translate3d(0, 16px, 0);
   }
 
   section.card {
     border-radius: 22px;
     padding: 18px 16px 16px;
     gap: 12px;
+    min-width: 0;
   }
 
   section.card h2 {
@@ -361,6 +394,10 @@ section.card h2 {
 
   .fig img {
     border-radius: 12px;
+  }
+
+  .contact-card {
+    min-height: 0;
   }
 
   .write-amar {

@@ -213,6 +213,9 @@ void main () {
   float srcX;
   float srcY;
   float alpha;
+  // Horizontal folds use the full viewport width; uMaxX letterboxing would
+  // clip the right-edge warp (anything past contentMaxX gets faded out).
+  float xLimit = horiz ? 1.0 : uMaxX;
 
   if (horiz) {
     uv.x = 0.5 + (uv.x - 0.5) * (uPersp + zG) / uPersp;
@@ -241,12 +244,12 @@ void main () {
   }
 
   alpha *= smoothstep(-2.0 * uPxX, 0.0, srcX);
-  alpha *= 1.0 - smoothstep(uMaxX, uMaxX + 2.0 * uPxX, srcX);
+  alpha *= 1.0 - smoothstep(xLimit, xLimit + 2.0 * uPxX, srcX);
   alpha *= smoothstep(-2.0 * uPxY, 0.0, srcY);
   alpha *= 1.0 - smoothstep(1.0, 1.0 + 2.0 * uPxY, srcY);
 
   vec2 p = vec2(
-    clamp(srcX, 0.0005, uMaxX - 0.0005),
+    clamp(srcX, 0.0005, xLimit - 0.0005),
     clamp(srcY, 0.0005, 0.9995)
   );
   vec4 base = texture(uContent, vec2(p.x, 1.0 - p.y));
@@ -834,7 +837,7 @@ export function createBend(
       srcX = cx + (x - cx) * ((persp + zSum) / persp);
     }
 
-    if (srcX < 0 || srcX > contentMaxX || srcY < 0 || srcY > 1) alpha = 0;
+    if (srcX < 0 || srcX > (horizontal ? 1 : contentMaxX) || srcY < 0 || srcY > 1) alpha = 0;
     return { x: srcX * w, y: (1 - srcY) * h, alpha };
   }
 
