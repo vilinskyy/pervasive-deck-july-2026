@@ -21,7 +21,7 @@ function Cards() {
   return (
     <>
       <section className="card rise rise-2" id="plane">
-        <p className="num">001.</p>
+        <p className="num">001</p>
         <h2>The whole plane, lived in</h2>
         <p className="arg">
           Two axes: <b>how long it works for you</b> (sub-second → years) and{" "}
@@ -42,7 +42,7 @@ function Cards() {
       </section>
 
       <section className="card rise rise-3" id="sovereignty">
-        <p className="num">002.</p>
+        <p className="num">002</p>
         <h2>Whose diagram has you at the center?</h2>
         <p className="arg">
           Every lab&apos;s architecture diagram: their cloud in the middle, you
@@ -62,7 +62,7 @@ function Cards() {
       </section>
 
       <section className="card quote-card rise rise-4" id="quote">
-        <p className="num">003.</p>
+        <p className="num">003</p>
         <figure className="quote">
           <blockquote>
             <p>
@@ -88,7 +88,7 @@ function Cards() {
       </section>
 
       <section className="card rise rise-5" id="mori">
-        <p className="num">004.</p>
+        <p className="num">004</p>
         <h2>One life, one cord</h2>
         <p className="arg">
           Everything that happens to you — messages, places, commands, pages,
@@ -109,7 +109,7 @@ function Cards() {
       </section>
 
       <section className="card rise rise-6" id="ax">
-        <p className="num">005.</p>
+        <p className="num">005</p>
         <h2>Room for Agent Experience™</h2>
         <p className="arg">
           The room an agent lives in elsewhere: a bare cell with four tools
@@ -128,7 +128,7 @@ function Cards() {
       </section>
 
       <section className="card rise rise-7" id="branches">
-        <p className="num">006.</p>
+        <p className="num">006</p>
         <h2>They&apos;re camped on our dead branches</h2>
         <p className="arg">
           Years of trying representations of a human life. Nearly all of them
@@ -147,7 +147,7 @@ function Cards() {
       </section>
 
       <section className="card contact-card rise rise-8" id="contact">
-        <p className="num">007.</p>
+        <p className="num">007</p>
         <h2>Say hello</h2>
         <p className="arg">Contact Amar Sood (Founder of Pervasive):</p>
         <p className="contact-email">
