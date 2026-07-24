@@ -61,25 +61,8 @@ function Cards() {
         </div>
       </section>
 
-      <section className="card rise rise-4" id="mori">
+      <section className="card quote-card rise rise-4" id="quote">
         <p className="num">003.</p>
-        <h2>One life, one cord</h2>
-        <p className="arg">
-          Everything that happens to you — messages, places, commands, pages,
-          voice, events — braids into one typed cord. Agents tap the cord at
-          exact points. UI renders off slices of it. Scrape-and-poll products
-          miss what falls between frames; the log wakes the agent exactly once,
-          exactly then.
-        </p>
-        <div className="fig">
-          <img
-            src="/assets/images/0.3_Mori.png"
-            alt="Mori: braided data cord versus polling gaps"
-            width={1920}
-            height={1440}
-            loading="lazy"
-          />
-        </div>
         <figure className="quote">
           <blockquote>
             <p>
@@ -104,8 +87,29 @@ function Cards() {
         </figure>
       </section>
 
-      <section className="card rise rise-5" id="ax">
+      <section className="card rise rise-5" id="mori">
         <p className="num">004.</p>
+        <h2>One life, one cord</h2>
+        <p className="arg">
+          Everything that happens to you — messages, places, commands, pages,
+          voice, events — braids into one typed cord. Agents tap the cord at
+          exact points. UI renders off slices of it. Scrape-and-poll products
+          miss what falls between frames; the log wakes the agent exactly once,
+          exactly then.
+        </p>
+        <div className="fig">
+          <img
+            src="/assets/images/0.3_Mori.png"
+            alt="Mori: braided data cord versus polling gaps"
+            width={1920}
+            height={1440}
+            loading="lazy"
+          />
+        </div>
+      </section>
+
+      <section className="card rise rise-6" id="ax">
+        <p className="num">005.</p>
         <h2>Room for Agent Experience™</h2>
         <p className="arg">
           The room an agent lives in elsewhere: a bare cell with four tools
@@ -123,8 +127,8 @@ function Cards() {
         </div>
       </section>
 
-      <section className="card rise rise-6" id="branches">
-        <p className="num">005.</p>
+      <section className="card rise rise-7" id="branches">
+        <p className="num">006.</p>
         <h2>They&apos;re camped on our dead branches</h2>
         <p className="arg">
           Years of trying representations of a human life. Nearly all of them
@@ -142,8 +146,8 @@ function Cards() {
         </div>
       </section>
 
-      <section className="card contact-card rise rise-7" id="contact">
-        <p className="num">006.</p>
+      <section className="card contact-card rise rise-8" id="contact">
+        <p className="num">007.</p>
         <h2>Say hello</h2>
         <p className="arg">Contact Amar Sood (Founder of Pervasive):</p>
         <p className="contact-email">

@@ -188,11 +188,16 @@ section.card h2 {
 }
 
 .quote {
-  margin: clamp(4px, 1vw, 10px) 0 0;
-  padding: clamp(14px, 2vw, 22px) 0 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin: 0;
+  padding: 0;
+  border: 0;
   display: grid;
-  gap: clamp(12px, 1.6vw, 16px);
+  gap: clamp(20px, 3vw, 32px);
+  flex: 1;
+}
+
+.quote-card .quote {
+  margin-top: clamp(4px, 1vw, 8px);
 }
 
 .quote blockquote {
@@ -203,23 +208,23 @@ section.card h2 {
 
 .quote blockquote p {
   margin: 0;
-  max-width: 38ch;
+  max-width: 18ch;
   color: var(--ink);
-  font-size: clamp(16px, 2.1vw, 20px);
-  font-weight: 400;
-  line-height: 1.45;
-  letter-spacing: -0.015em;
+  font-size: clamp(28px, 4.2vw, 48px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
 }
 
 .quote figcaption {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .quote figcaption img {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -228,25 +233,24 @@ section.card h2 {
 .quote figcaption span {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   line-height: 1.25;
 }
 
 .quote figcaption strong {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink);
 }
 
 .quote figcaption em {
   font-style: normal;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
 }
 
 .contact-card {
-  justify-content: center;
-  min-height: min(420px, 100%);
+  justify-content: flex-start;
 }
 
 .contact-email {
@@ -291,6 +295,9 @@ section.card h2 {
 }
 .rise-7 {
   animation-delay: 400ms;
+}
+.rise-8 {
+  animation-delay: 460ms;
 }
 
 @keyframes rise-in {
