@@ -193,8 +193,9 @@ section.card h2 {
   padding: 0;
   border: 0;
   display: grid;
-  gap: clamp(20px, 3vw, 32px);
-  flex: 1;
+  gap: 14px;
+  align-content: start;
+  flex: 0 0 auto;
 }
 
 .quote-card .quote {
