@@ -34,7 +34,7 @@ html[data-theme="dark"] {
   --muted: #ffffff;
   --number: #ffffff;
   --paper: #000000;
-  --card: rgba(255, 255, 255, 0.03);
+  --card: rgba(255, 255, 255, 0.08);
   --link: #ffffff;
 }
 
@@ -199,7 +199,9 @@ section.card h2 {
 
 .arg b,
 .arg i {
-  color: #374151;
+  color: var(--ink);
+  font-weight: 700;
+  font-style: normal;
 }
 
 .fig {

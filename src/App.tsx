@@ -21,8 +21,8 @@ function useIsMobile(query = "(max-width: 640px)") {
 
 function useDarkMode() {
   const [dark, setDark] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem(THEME_KEY) === "dark";
+    if (typeof window === "undefined") return true;
+    return window.localStorage.getItem(THEME_KEY) !== "light";
   });
 
   useEffect(() => {
