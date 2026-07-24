@@ -205,8 +205,8 @@ export default function App() {
           <Bend
             className="bend-root"
             axis="horizontal"
-            zone={120}
-            angle={80}
+            zone={180}
+            angle={120}
             rounding={75}
             perspective={700}
             ease={160}
