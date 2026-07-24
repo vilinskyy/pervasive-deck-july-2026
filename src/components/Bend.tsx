@@ -108,7 +108,7 @@ uniform float uTiltX;
 uniform float uTiltY;
 uniform float uPhi;
 uniform float uRound;
-uniform float uHorizontal;
+//_AXIS_DEFINE
 
 vec3 foldEdge (float sy, float amt) {
   float yf = 1.0 - uZone;
@@ -183,20 +183,20 @@ void main () {
   vec2 uv = vUv;
   float cx = uMaxX * 0.5;
   float zSum = 0.0;
-  bool horiz = uHorizontal > 0.5;
 
   if (abs(uPhi) > 1e-4) {
-    if (horiz) {
-      if (uPhi > 0.0) {
-        vec2 r = tipPlane(uv.x, uPhi);
-        uv.x = r.x;
-        zSum += r.y;
-      } else {
-        vec2 r = tipPlane(1.0 - uv.x, -uPhi);
-        uv.x = 1.0 - r.x;
-        zSum += r.y;
-      }
-    } else if (uPhi > 0.0) {
+#ifdef HORIZONTAL
+    if (uPhi > 0.0) {
+      vec2 r = tipPlane(uv.x, uPhi);
+      uv.x = r.x;
+      zSum += r.y;
+    } else {
+      vec2 r = tipPlane(1.0 - uv.x, -uPhi);
+      uv.x = 1.0 - r.x;
+      zSum += r.y;
+    }
+#else
+    if (uPhi > 0.0) {
       vec2 r = tipPlane(uv.y, uPhi);
       uv.y = r.x;
       zSum += r.y;
@@ -205,6 +205,7 @@ void main () {
       uv.y = 1.0 - r.x;
       zSum += r.y;
     }
+#endif
   }
 
   float zG = uTiltX * (uv.x - cx) + uTiltY * (uv.y - 0.5);
@@ -213,35 +214,33 @@ void main () {
   float srcX;
   float srcY;
   float alpha;
-  // Horizontal folds use the full viewport width; uMaxX letterboxing would
-  // clip the right-edge warp (anything past contentMaxX gets faded out).
-  float xLimit = horiz ? 1.0 : uMaxX;
-
-  if (horiz) {
-    uv.x = 0.5 + (uv.x - 0.5) * (uPersp + zG) / uPersp;
-    float inRight = step(1.0 - uZone, uv.x);
-    float inLeft = step(uv.x, uZone);
-    vec3 right = foldEdge(uv.x, uTopAmt);
-    vec3 left = foldEdge(1.0 - uv.x, uBotAmt);
-    srcX = uv.x;
-    srcX = mix(srcX, right.x, inRight);
-    srcX = mix(srcX, 1.0 - left.x, inLeft);
-    zSum += inRight * right.y + inLeft * left.y;
-    alpha = mix(1.0, right.z, inRight) * mix(1.0, left.z, inLeft);
-    srcY = 0.5 + (uv.y - 0.5) * (uPersp + zSum) / uPersp;
-  } else {
-    uv.y = 0.5 + (uv.y - 0.5) * (uPersp + zG) / uPersp;
-    float inTop = step(1.0 - uZone, uv.y);
-    float inBot = step(uv.y, uZone);
-    vec3 top = foldEdge(uv.y, uTopAmt);
-    vec3 bot = foldEdge(1.0 - uv.y, uBotAmt);
-    srcY = uv.y;
-    srcY = mix(srcY, top.x, inTop);
-    srcY = mix(srcY, 1.0 - bot.x, inBot);
-    zSum += inTop * top.y + inBot * bot.y;
-    alpha = mix(1.0, top.z, inTop) * mix(1.0, bot.z, inBot);
-    srcX = cx + (uv.x - cx) * (uPersp + zSum) / uPersp;
-  }
+#ifdef HORIZONTAL
+  float xLimit = 1.0;
+  uv.x = 0.5 + (uv.x - 0.5) * (uPersp + zG) / uPersp;
+  float inRight = step(1.0 - uZone, uv.x);
+  float inLeft = step(uv.x, uZone);
+  vec3 right = foldEdge(uv.x, uTopAmt);
+  vec3 left = foldEdge(1.0 - uv.x, uBotAmt);
+  srcX = uv.x;
+  srcX = mix(srcX, right.x, inRight);
+  srcX = mix(srcX, 1.0 - left.x, inLeft);
+  zSum += inRight * right.y + inLeft * left.y;
+  alpha = mix(1.0, right.z, inRight) * mix(1.0, left.z, inLeft);
+  srcY = 0.5 + (uv.y - 0.5) * (uPersp + zSum) / uPersp;
+#else
+  float xLimit = uMaxX;
+  uv.y = 0.5 + (uv.y - 0.5) * (uPersp + zG) / uPersp;
+  float inTop = step(1.0 - uZone, uv.y);
+  float inBot = step(uv.y, uZone);
+  vec3 top = foldEdge(uv.y, uTopAmt);
+  vec3 bot = foldEdge(1.0 - uv.y, uBotAmt);
+  srcY = uv.y;
+  srcY = mix(srcY, top.x, inTop);
+  srcY = mix(srcY, 1.0 - bot.x, inBot);
+  zSum += inTop * top.y + inBot * bot.y;
+  alpha = mix(1.0, top.z, inTop) * mix(1.0, bot.z, inBot);
+  srcX = cx + (uv.x - cx) * (uPersp + zSum) / uPersp;
+#endif
 
   alpha *= smoothstep(-2.0 * uPxX, 0.0, srcX);
   alpha *= 1.0 - smoothstep(xLimit, xLimit + 2.0 * uPxX, srcX);
@@ -369,7 +368,11 @@ export function createBend(
   }
 
   const vertexShader = compile(gl.VERTEX_SHADER, VERT);
-  const fragmentShader = compile(gl.FRAGMENT_SHADER, FRAG);
+  const fragSource = FRAG.replace(
+    "//_AXIS_DEFINE",
+    config.axis === "horizontal" ? "#define HORIZONTAL 1" : "",
+  );
+  const fragmentShader = compile(gl.FRAGMENT_SHADER, fragSource);
   const program = gl.createProgram()!;
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
@@ -553,7 +556,6 @@ export function createBend(
       uniforms.uRound,
       Math.min(Math.max(config.rounding, 0) / axisSpan, zoneFrac),
     );
-    gl!.uniform1f(uniforms.uHorizontal, horizontal ? 1 : 0);
     gl!.bindFramebuffer(gl!.FRAMEBUFFER, null);
     gl!.viewport(0, 0, output.width, output.height);
     gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
