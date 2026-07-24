@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Bend from "./components/Bend";
 
+const THEME_KEY = "pervasive-deck-theme";
+
 function useIsMobile(query = "(max-width: 640px)") {
   const [mobile, setMobile] = useState(() =>
     typeof window !== "undefined" ? window.matchMedia(query).matches : false,
@@ -15,6 +17,23 @@ function useIsMobile(query = "(max-width: 640px)") {
   }, [query]);
 
   return mobile;
+}
+
+function useDarkMode() {
+  const [dark, setDark] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(THEME_KEY) === "dark";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      dark ? "dark" : "light",
+    );
+    window.localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
+  }, [dark]);
+
+  return [dark, setDark] as const;
 }
 
 function Cards() {
@@ -160,9 +179,19 @@ function Cards() {
 
 export default function App() {
   const mobile = useIsMobile();
+  const [dark, setDark] = useDarkMode();
 
   return (
     <>
+      <button
+        type="button"
+        className="theme-toggle"
+        aria-pressed={dark}
+        onClick={() => setDark((v) => !v)}
+      >
+        {dark ? "Light mode" : "Dark mode"}
+      </button>
+
       <a
         className="write-amar"
         href="mailto:amar@pervasive.app"

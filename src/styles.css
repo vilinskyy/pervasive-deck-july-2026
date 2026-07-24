@@ -20,11 +20,22 @@
   --number: #9ca3af;
   --paper: #ffffff;
   --card: #f3f4f6;
+  --link: #2563eb;
   --rise: cubic-bezier(0.16, 1, 0.3, 1);
   --page-inline: 240px;
   --header-top: 120px;
   --rail-gap: clamp(18px, 2.4vw, 28px);
   --card-width: 40vw;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #ffffff;
+  --muted: #ffffff;
+  --number: #ffffff;
+  --paper: #000000;
+  --card: rgba(255, 255, 255, 0.03);
+  --link: #ffffff;
 }
 
 * {
@@ -262,7 +273,7 @@ section.card h2 {
 }
 
 .contact-email a {
-  color: #2563eb;
+  color: var(--link);
   text-decoration: none;
 }
 
@@ -316,6 +327,31 @@ section.card h2 {
     animation: none;
     will-change: auto;
   }
+}
+
+.theme-toggle {
+  position: fixed;
+  top: clamp(16px, 2.5vw, 28px);
+  right: clamp(16px, 3vw, 28px);
+  z-index: 50;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  cursor: pointer;
+  outline: none;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .write-amar {

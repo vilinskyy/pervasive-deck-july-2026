@@ -508,6 +508,20 @@ export function createBend(
   syncScroll();
   syncBgColor();
 
+  const themeObs = new MutationObserver(() => {
+    syncBgColor();
+    if (htmlInCanvas) {
+      paintable.requestPaint?.();
+    } else {
+      contentDirty = true;
+      wake();
+    }
+  });
+  themeObs.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+
   function uploadContent() {
     if (!htmlInCanvas || !contentDirty) return;
     contentDirty = false;
@@ -1061,6 +1075,7 @@ export function createBend(
       window.removeEventListener("mousemove", onSelMove, true);
       window.removeEventListener("mouseup", onSelEnd, true);
       observer.disconnect();
+      themeObs.disconnect();
       intersection.disconnect();
       motionQuery.removeEventListener("change", onMotionChange);
       gl!.deleteTexture(contentTexture);
@@ -1123,7 +1138,7 @@ export function Bend({ children, className, style, ...options }: BendProps) {
     height: "100%",
     overflowX: horizontal ? "auto" : "hidden",
     overflowY: horizontal ? "hidden" : "auto",
-    background: "#ffffff",
+    background: "var(--paper)",
     scrollbarWidth: "thin",
   };
 
