@@ -1139,7 +1139,8 @@ export function Bend({ children, className, style, ...options }: BendProps) {
     overflowX: horizontal ? "auto" : "hidden",
     overflowY: horizontal ? "hidden" : "auto",
     background: "var(--paper)",
-    scrollbarWidth: "thin",
+    scrollbarWidth: "none",
+    msOverflowStyle: "none",
   };
 
   return (

@@ -40,6 +40,14 @@ html[data-theme="dark"] {
 
 * {
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 html,
@@ -138,6 +146,8 @@ section.card {
   max-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   background: var(--card);
   border: none;
   border-radius: 28px;
@@ -145,7 +155,12 @@ section.card {
   display: flex;
   flex-direction: column;
   gap: clamp(12px, 1.8vw, 18px);
-  scrollbar-width: thin;
+}
+
+section.card::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .cards--mobile section.card {
