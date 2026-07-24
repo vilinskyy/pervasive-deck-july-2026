@@ -97,8 +97,9 @@ body,
   min-height: 100%;
   width: max-content;
   /* Vertical padding gives left/right folds room to render at both ends —
-     without top pad the upper half of the side warp gets clipped. */
-  padding: clamp(28px, 4vw, 48px) var(--page-inline);
+     without top pad the upper half of the side warp gets clipped.
+     Scale with Bend zone/angle — stronger folds need more headroom. */
+  padding: clamp(72px, 9vw, 120px) var(--page-inline);
   box-sizing: border-box;
 }
 
